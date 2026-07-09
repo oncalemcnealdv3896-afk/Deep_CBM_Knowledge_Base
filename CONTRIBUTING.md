@@ -35,3 +35,22 @@ Rules:
 - Do not overwrite user notes.
 - Do not delete existing Excel sheets, formulas, hyperlinks, comments, filters, or formatting.
 - Every update must be recorded in CHANGELOG.md.
+## Master Index Update Rule
+
+After every modification to 00_Master/Deep_CBM_Latest.xlsx, Codex must run:
+
+python scripts/export_master_index.py
+
+or:
+
+py scripts/export_master_index.py
+
+Codex must commit the regenerated files:
+
+- 00_Master/index/Deep_CBM_master_index.csv
+- 00_Master/index/Deep_CBM_master_index.jsonl
+- 06_Statistics/Master_Index_Report_YYYYMMDD.md
+
+ChatGPT will use these files for daily deduplication.
+
+Do not ask ChatGPT to deduplicate from chat history alone.

@@ -44,3 +44,21 @@ ChatGPT must not directly edit 00_Master/Deep_CBM_Latest.xlsx.
 User personal markings and reading notes must be saved only under 08_User/.
 
 The daily brief is the source of truth for each daily update. Codex must not update the master workbook based only on chat history.
+## Master Index for ChatGPT Deduplication
+
+ChatGPT reads the GitHub repository as the source of truth for daily literature deduplication.
+
+To make deduplication reliable, Codex exports machine-readable index files from the master workbook:
+
+- 00_Master/index/Deep_CBM_master_index.csv
+- 00_Master/index/Deep_CBM_master_index.jsonl
+
+These files are regenerated after every update to 00_Master/Deep_CBM_Latest.xlsx.
+
+ChatGPT uses these index files to check:
+- DOI duplication
+- English title duplication
+- Chinese title duplication
+- author-year similarity
+
+The Excel workbook remains the master human-readable database, but the index files are the preferred machine-readable deduplication source.
