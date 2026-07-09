@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-07-09 Workbook Auxiliary Sheet Sync Patch
+
+- Synchronized workbook auxiliary sheets after Daily Brief corrected update.
+- Regenerated `网页索引` from the master matrix, now covering DCBM-001 to DCBM-121.
+- Updated `总览统计` to the current 121-record state.
+- Updated `字段说明` to match all 27 master matrix fields.
+- Completed missing `精读摘要` fields for DCBM-119 to DCBM-121.
+- Rebuilt workbook internal `QC报告` to remove stale 118-record values.
+- Regenerated master index files.
+- Did not add new literature records.
+- Did not modify `08_User/`, `00_Master/source/`, or `00_Master/workbook_archive/`.
+
 ## 2026-07-09 Daily Brief Corrected Update
 
 - Read and corrected Daily Brief: `09_Daily_Brief/2026-07-09/Deep_CBM_daily_brief_20260709.md`
