@@ -8,3 +8,5 @@ Thumbs.db
 .env
 .venv/
 venv/
+_incoming_*/
+*.zip
