@@ -29,3 +29,18 @@ Deep CBM Knowledge Base is a continuously curated, version-controlled, evidence-
 3. 中文题名
 4. 第一作者 + 年份
 5. 人工核查
+## Daily Brief Workflow
+
+Daily literature updates are driven by Markdown briefs.
+
+ChatGPT generates daily briefs under:
+
+09_Daily_Brief/YYYY-MM-DD/Deep_CBM_daily_brief_YYYYMMDD.md
+
+Codex reads each daily brief and then updates the Excel master workbook, snapshots, increment files, RIS/BibTeX exports, QC reports, and changelog.
+
+ChatGPT must not directly edit 00_Master/Deep_CBM_Latest.xlsx.
+
+User personal markings and reading notes must be saved only under 08_User/.
+
+The daily brief is the source of truth for each daily update. Codex must not update the master workbook based only on chat history.
