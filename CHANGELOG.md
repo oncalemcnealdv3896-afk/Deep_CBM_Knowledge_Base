@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-07-09 Daily Brief Corrected Update
+
+- Read and corrected Daily Brief: `09_Daily_Brief/2026-07-09/Deep_CBM_daily_brief_20260709.md`
+- Skipped duplicate candidate originally proposed as DCBM-119 because DOI `10.3389/feart.2026.1772109` already exists as DCBM-028.
+- Added three new records: DCBM-119 to DCBM-121.
+- Renumbered non-duplicate candidates from the original Daily Brief:
+  - Original DCBM-120 -> DCBM-119
+  - Original DCBM-121 -> DCBM-120
+  - Original DCBM-122 -> DCBM-121
+- Updated master workbook: `00_Master/Deep_CBM_Latest.xlsx`
+- Master record count changed from 118 to 121.
+- Added snapshot: `00_Master/snapshots/Deep_CBM_Knowledge_Base_2026-07-09_daily_brief_update.xlsx`
+- Added increment files under: `01_Increment/2026-07-09_daily_brief_update/`
+- Added duplicate check with skipped duplicate reason.
+- Regenerated master index files under: `00_Master/index/`
+- Generated QC report: `06_Statistics/QC_Report_20260709_daily_brief_update.md`
+- Preserved user-maintained files under `08_User/`
+- Did not overwrite existing initialization files under `01_Increment/2026-07-09/`
+
 ## 2026-07-09
 
 - Cleaned workbook sheet structure for long-term maintenance.

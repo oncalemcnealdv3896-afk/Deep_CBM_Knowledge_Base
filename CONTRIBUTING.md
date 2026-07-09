@@ -54,3 +54,20 @@ Codex must commit the regenerated files:
 ChatGPT will use these files for daily deduplication.
 
 Do not ask ChatGPT to deduplicate from chat history alone.
+
+## Duplicate Handling Rule
+
+If a Daily Brief contains both duplicate and non-duplicate candidates, Codex must not stop the entire update.
+
+Codex must:
+1. Skip duplicate candidates.
+2. Record skipped candidates in duplicate check files and update logs.
+3. Preserve the existing record ID for duplicated literature.
+4. Continue adding non-duplicate candidates.
+5. Reassign final DCBM IDs sequentially after the current last ID.
+6. Record original suggested ID and final assigned ID.
+7. Generate QC reports documenting all skipped and added candidates.
+8. Stop only if all candidates are duplicates, or if duplicate status cannot be determined safely.
+
+Do not blindly trust suggested IDs in Daily Brief. Suggested IDs are provisional until checked against the current master workbook and master index.
+
