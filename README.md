@@ -62,3 +62,11 @@ ChatGPT uses these index files to check:
 - author-year similarity
 
 The Excel workbook remains the master human-readable database, but the index files are the preferred machine-readable deduplication source.
+
+## Active Workbook Sheet Structure
+
+Active workbook sheets are limited to:
+完整文献矩阵, 总览统计, 网页索引, 字段说明, 精读摘要, 更新日志, 重复检查, QC报告.
+
+Historical batch sheets and dated update sheets should be stored in archive directories, not kept as active workbook sheets.
+
