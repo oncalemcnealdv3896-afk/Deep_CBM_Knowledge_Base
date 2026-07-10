@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-07-10 Daily Brief Update
+
+- Read and processed Daily Brief: `09_Daily_Brief/2026-07-10/Deep_CBM_daily_brief_20260710.md`
+- Added 3 new records: DCBM-122, DCBM-123, DCBM-124 (all from *Petroleum Exploration and Development*, Vol. 53, No. 3, 2026)
+- DCBM-122: ZHANG Shuichang — Generation stages and genetic types of coal-rock gas in China
+- DCBM-123: LI Guoxin — Formation mechanism of coal-rock gas accumulation transition zones
+- DCBM-124: SUN Jinsheng — Cementing and film-forming hydrophobic drilling fluid technology
+- Manual review resolved: DCBM-123 (LI Guoxin, 2026) — same author as DCBM-110 but different paper
+- No duplicates found; 0 skipped
+- Implemented `scripts/daily_ingest.py` deterministic ingestion pipeline (preflight → apply → validate)
+- Added `AGENTS.md` with permanent maintenance rules
+- Master record count: 121 → 124
+- Snapshot: `00_Master/snapshots/Deep_CBM_Knowledge_Base_2026-07-10.xlsx`
+- Increment files generated under `01_Increment/2026-07-10_daily_brief_update/`
+- Index regenerated under `00_Master/index/`
+- QC report: `06_Statistics/QC_Report_20260710_daily_brief_update.md`
+- Protected directories (`08_User`, `00_Master/source`, `00_Master/workbook_archive`) unmodified
+
 ## 2026-07-09 Workbook Auxiliary Sheet Sync Patch
 
 - Synchronized workbook auxiliary sheets after Daily Brief corrected update.
