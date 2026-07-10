@@ -15,6 +15,8 @@ ROOT = Path(__file__).resolve().parents[2]
 MASTER = ROOT / "00_Master" / "Deep_CBM_Latest.xlsx"
 SNAPSHOTS = ROOT / "00_Master" / "snapshots"
 
+SKIP_VALUES = {"待定", "TBD", "待全文核验", ""}
+
 SHEET_MATRIX = "完整文献矩阵"
 SHEET_STATS = "总览统计"
 SHEET_WEB = "网页索引"
@@ -193,18 +195,108 @@ def apply_new_records(
 # ---------------------------------------------------------------------------
 
 def _update_stats_sheet(wb, total_records: int) -> None:
+    """Full update of 总览统计 — metadata rows + year/journal distributions."""
     ws = wb[SHEET_STATS]
-    # Try to find and update the "总记录数" row
-    for row_idx in range(1, ws.max_row + 1):
-        label = str(ws.cell(row=row_idx, column=1).value or "")
-        if "总记录数" in label or "total" in label.lower():
+    today_str = date.today().isoformat()
+
+    from collections import Counter
+    ws_matrix = wb[SHEET_MATRIX]
+    years: Counter[str] = Counter()
+    journals: Counter[str] = Counter()
+
+    header_row = 1
+    col_map = {}
+    for cell in ws_matrix[header_row]:
+        if cell.value:
+            col_map[str(cell.value).strip()] = cell.column
+
+    for row in ws_matrix.iter_rows(min_row=header_row + 1):
+        if not any(c.value for c in row):
+            continue
+        def _get(field: str) -> str:
+            c = col_map.get(field)
+            if c:
+                for cell in row:
+                    if cell.column == c:
+                        return str(cell.value).strip() if cell.value else ""
+            return ""
+        y, j = _get("年份"), _get("期刊/来源")
+        if y:
+            years[y] += 1
+        if j:
+            journals[j] += 1
+
+    # --- Update metadata rows by label (handle both old and Codex formats) ---
+    ids = sorted([int(str(ws_matrix.cell(row=r, column=2).value or "").replace("DCBM-", "").replace("DCBM", ""))
+                  for r in range(2, ws_matrix.max_row + 1)
+                  if str(ws_matrix.cell(row=r, column=2).value or "").startswith("DCBM")])
+    last_id = f"DCBM-{ids[-1]:03d}" if ids else "N/A"
+
+    for row_idx in range(2, ws.max_row + 1):
+        label = str(ws.cell(row=row_idx, column=1).value or "").strip()
+        if not label:
+            continue
+        # Match various label formats
+        if "累计文献数" in label or "当前累计文献数" in label:
             ws.cell(row=row_idx, column=2).value = total_records
-            return
-    # If not found, append
-    new_row = ws.max_row + 1
-    ws.cell(row=new_row, column=1).value = "总记录数"
-    ws.cell(row=new_row, column=2).value = total_records
-    ws.cell(row=new_row, column=3).value = date.today().isoformat()
+        elif "最后编号" in label or "当前最后编号" in label:
+            ws.cell(row=row_idx, column=2).value = last_id
+        elif "版本" in label or "当前版本" in label:
+            ws.cell(row=row_idx, column=2).value = f"v1_{total_records}_daily_brief_update_{today_str}"
+        elif "网页索引记录数" in label:
+            ws.cell(row=row_idx, column=2).value = total_records
+        elif "精读摘要记录数" in label:
+            ws.cell(row=row_idx, column=2).value = total_records
+        elif "更新" in label and ("最近" in label or "最后" in label or "日期" in label):
+            ws.cell(row=row_idx, column=2).value = f"{today_str} Daily Brief Update"
+
+    # --- Update year distribution ---
+    for row_idx in range(10, ws.max_row + 1):
+        label = str(ws.cell(row=row_idx, column=1).value or "")
+        if "年份" in label and "分布" in label:
+            # Find all existing year rows after this header
+            r = row_idx + 1
+            for y_year in sorted(years.keys()):
+                while r < ws.max_row:
+                    v = str(ws.cell(row=r, column=1).value or "").strip()
+                    if v and v != y_year and not v.isdigit():
+                        break
+                    if v == y_year or (not v and r > row_idx + 1):
+                        ws.cell(row=r, column=1).value = y_year
+                        ws.cell(row=r, column=2).value = years[y_year]
+                        r += 1
+                        break
+                    r += 1
+            break
+
+    # --- Update journal distribution ---
+    for row_idx in range(20, ws.max_row + 1):
+        label = str(ws.cell(row=row_idx, column=1).value or "")
+        if "期刊" in label and ("来源" in label or "分布" in label):
+            r = row_idx + 1
+            sorted_j = sorted(journals.items(), key=lambda x: -x[1])
+            for j_name, cnt in sorted_j:
+                found = False
+                for rr in range(row_idx + 1, ws.max_row + 1):
+                    if str(ws.cell(row=rr, column=1).value or "").strip() == j_name:
+                        ws.cell(row=rr, column=2).value = cnt
+                        found = True
+                        break
+                if not found:
+                    while r < ws.max_row and ws.cell(row=r, column=1).value:
+                        r += 1
+                    if r < ws.max_row:
+                        ws.cell(row=r, column=1).value = j_name
+                        ws.cell(row=r, column=2).value = cnt
+            break
+
+    # --- Update total record count row ---
+    for row_idx in range(ws.max_row - 10, ws.max_row + 1):
+        label = str(ws.cell(row=row_idx, column=1).value or "")
+        if "总记录数" in label:
+            ws.cell(row=row_idx, column=2).value = total_records
+            ws.cell(row=row_idx, column=3).value = today_str
+            break
 
 
 def _update_web_index(
@@ -231,22 +323,68 @@ def _update_web_index(
 def _update_summary_sheet(
     wb, candidates: list[dict[str, Any]], proposed_ids: list[str]
 ) -> None:
+    """Update 精读摘要 with entries matching existing Codex format.
+
+    Cols: A=文献ID B=年份 C=题名 D=研究区/对象 E=标准化精读摘要
+          F=研究目的 G=数据/方法 H=核心发现 I=创新点 J=局限性
+          K=与你课题关系 L=建议引用位置 M=精读优先级 N=摘要升级状态
+    """
     ws = wb[SHEET_SUMMARY]
     last_row = ws.max_row
+
     for i, (cand, final_id) in enumerate(zip(candidates, proposed_ids)):
         new_row = last_row + 1 + i
+
+        priority_raw = cand.get("reading_priority", "").strip().upper()
+        star_map = {"A": "★★★★★", "B": "★★★★", "C": "★★★"}
+        priority_stars = star_map.get(priority_raw, priority_raw)
+
+        study_parts = []
+        for p in [cand.get("study_area", ""), cand.get("research_object", "")]:
+            if p and p not in SKIP_VALUES:
+                study_parts.append(p)
+        burial = cand.get("burial_depth", "")
+        if burial and burial not in SKIP_VALUES:
+            study_parts.append(f"深度：{burial}")
+        study_str = "; ".join(study_parts) if study_parts else ""
+
+        detail = cand.get("_detail_prose", {})
+        summary_parts = []
+        for tag, field in [
+            ("研究目的", "research_purpose"),
+            ("数据/方法", "methods"),
+            ("核心发现", "findings"),
+            ("创新点", "innovation"),
+            ("局限性", "limitations"),
+            ("与你课题的关系", "relevance"),
+        ]:
+            val = detail.get(f"{field}_prose", "") or cand.get(field, "")
+            if val and val not in SKIP_VALUES:
+                summary_parts.append(f"【{tag}】{val}")
+        summary_str = "\n".join(summary_parts) if summary_parts else ""
+
+        def _clean_val(field: str) -> str:
+            val = cand.get(field, "")
+            if "待全文核验" in val:
+                prose = detail.get(f"{field}_prose", "")
+                if prose:
+                    return prose
+            return val
+
         ws.cell(row=new_row, column=1).value = final_id
         ws.cell(row=new_row, column=2).value = cand.get("year", "")
-        ws.cell(row=new_row, column=3).value = cand.get("journal", "")
-        ws.cell(row=new_row, column=4).value = cand.get("study_area", "")
-        ws.cell(row=new_row, column=6).value = cand.get("research_purpose", "")
-        ws.cell(row=new_row, column=7).value = cand.get("methods", "")
-        ws.cell(row=new_row, column=8).value = cand.get("findings", "")
-        ws.cell(row=new_row, column=9).value = cand.get("innovation", "")
-        ws.cell(row=new_row, column=10).value = cand.get("limitations", "")
-        ws.cell(row=new_row, column=11).value = cand.get("relevance", "")
-        ws.cell(row=new_row, column=12).value = cand.get("suggested_chapter", "")
-        ws.cell(row=new_row, column=13).value = cand.get("reading_priority", "")
+        ws.cell(row=new_row, column=3).value = cand.get("title_zh", "")
+        ws.cell(row=new_row, column=4).value = study_str
+        ws.cell(row=new_row, column=5).value = summary_str
+        ws.cell(row=new_row, column=6).value = _clean_val("research_purpose")
+        ws.cell(row=new_row, column=7).value = _clean_val("methods")
+        ws.cell(row=new_row, column=8).value = _clean_val("findings")
+        ws.cell(row=new_row, column=9).value = _clean_val("innovation")
+        ws.cell(row=new_row, column=10).value = _clean_val("limitations")
+        ws.cell(row=new_row, column=11).value = _clean_val("relevance")
+        ws.cell(row=new_row, column=12).value = _clean_val("suggested_chapter")
+        ws.cell(row=new_row, column=13).value = priority_stars
+        ws.cell(row=new_row, column=14).value = "由 Daily Brief 生成；待全文精读增强"
 
 
 def _update_changelog_sheet(

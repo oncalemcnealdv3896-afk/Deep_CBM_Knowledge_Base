@@ -3,12 +3,12 @@
   "id_continuous": true,
   "protected_paths": {
     "modified": true,
-    "before_count": 8,
-    "after_count": 9,
+    "before_count": 10,
+    "after_count": 10,
     "changes": [
       {
-        "path": "00_Master/snapshots/Deep_CBM_Knowledge_Base_2026-07-10.xlsx",
-        "change": "added"
+        "path": "00_Master/snapshots/Deep_CBM_Knowledge_Base_2026-07-10_daily_brief_update.xlsx",
+        "change": "modified"
       }
     ]
   },

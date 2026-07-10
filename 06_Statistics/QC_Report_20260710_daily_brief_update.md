@@ -26,5 +26,5 @@
 ## Validation Details
 - temp_workbook_ok: True
 - id_continuous: True
-- protected_paths: {'modified': True, 'before_count': 8, 'after_count': 9, 'changes': [{'path': '00_Master/snapshots/Deep_CBM_Knowledge_Base_2026-07-10.xlsx', 'change': 'added'}]}
+- protected_paths: {'modified': True, 'before_count': 10, 'after_count': 10, 'changes': [{'path': '00_Master/snapshots/Deep_CBM_Knowledge_Base_2026-07-10_daily_brief_update.xlsx', 'change': 'modified'}]}
 - index_summary: {'record_count': 124, 'last_id': 'DCBM-124', 'id_continuous': True, 'doi_missing': 1, 'doi_duplicates': 0, 'english_title_duplicates': 0, 'chinese_title_duplicates': 0, 'csv_path': '00_Master\\index\\Deep_CBM_master_index.csv', 'jsonl_path': '00_Master\\index\\Deep_CBM_master_index.jsonl', 'report_path': '06_Statistics\\Master_Index_Report_20260710.md'}
