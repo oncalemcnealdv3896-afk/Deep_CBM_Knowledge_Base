@@ -90,8 +90,11 @@ def _cell_val(row, headers: dict[str, int], field: str) -> str:
     if col < 0:
         return ""
     for cell in row:
-        if cell.column == col:
-            return str(cell.value).strip() if cell.value is not None else ""
+        try:
+            if cell.column == col:
+                return str(cell.value).strip() if cell.value is not None else ""
+        except AttributeError:
+            continue
     return ""
 
 
