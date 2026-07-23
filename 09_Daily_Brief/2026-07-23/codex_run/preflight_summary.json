@@ -1,0 +1,33 @@
+{
+  "status": "pass",
+  "action": "apply",
+  "master_count_before": 124,
+  "last_id_before": "DCBM-124",
+  "candidate_count": 13,
+  "new_count": 13,
+  "duplicate_count": 0,
+  "manual_review_count": 0,
+  "proposed_final_ids": [
+    "DCBM-125",
+    "DCBM-126",
+    "DCBM-127",
+    "DCBM-128",
+    "DCBM-129",
+    "DCBM-130",
+    "DCBM-131",
+    "DCBM-132",
+    "DCBM-133",
+    "DCBM-134",
+    "DCBM-135",
+    "DCBM-136",
+    "DCBM-137"
+  ],
+  "errors": [],
+  "warnings": [
+    "DCBM-135-MR : missing BibTeX block",
+    "DCBM-136-MR : missing RIS block",
+    "DCBM-136-MR : missing BibTeX block",
+    "DCBM-137-MR : missing RIS block",
+    "DCBM-137-MR : missing BibTeX block"
+  ]
+}

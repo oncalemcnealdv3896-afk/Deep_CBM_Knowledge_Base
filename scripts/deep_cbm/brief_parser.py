@@ -23,9 +23,13 @@ def parse_brief(brief_path: Path, run_dir: Path) -> dict[str, Any]:
     candidates = _parse_matrix_rows(text) if not manifest else manifest.get("candidates", [])
 
     # Priority 3: merge Section 5 candidate detail prose (enriches matrix data)
+    # If matrix parsing found nothing, create candidates from details alone
     details = _parse_candidate_details(text)
     if details:
-        candidates = _merge_section5_data(candidates, details)
+        if candidates:
+            candidates = _merge_section5_data(candidates, details)
+        else:
+            candidates = _candidates_from_details(details)
         extraction_method += " + section5"
 
     # Extract RIS blocks  (one per candidate, delimited by ER -)
@@ -134,6 +138,20 @@ MATRIX_FIELDS_26 = [
     (25, "verification_status"),
 ]
 
+# Compact 10-14 column matrix table
+COMPACT_FIELDS = [
+    (0, "provisional_id"),
+    (1, "recommendation"),
+    (2, "doi"),
+    (3, "title_en"),
+    (4, "first_author"),
+    (5, "year"),
+    (6, "journal"),
+    (7, "pages_or_article"),
+    (8, "verification_status"),
+    (9, "reading_priority"),
+]
+
 SKIP_VALUES = {"待定", "TBD", "待全文核验", ""}
 
 
@@ -175,7 +193,8 @@ def _parse_matrix_rows(text: str) -> list[dict[str, Any]]:
             continue
 
         cells = [c.strip() for c in stripped.split("|")[1:-1]]
-        if len(cells) < 20:
+        # Support both full (26-27 col) and compact (10 col) table formats
+        if len(cells) < 8:
             in_table = False
             continue
 
@@ -185,14 +204,15 @@ def _parse_matrix_rows(text: str) -> list[dict[str, Any]]:
             continue
 
         # Select field mapping based on cell count
-        # 26 cells = Daily Brief missing "埋深/对象深度"
-        # 27 cells = full master format
         if len(cells) == 26:
             field_map = MATRIX_FIELDS_26
         elif len(cells) == 27:
             field_map = MASTER_FIELDS_27
+        elif 8 <= len(cells) <= 14:
+            # Compact table (10-14 cols): provisional_id, recommendation, DOI, title_en,
+            # first_author, year, journal, vol_issue, verification, priority
+            field_map = COMPACT_FIELDS  # type: ignore[assignment]
         else:
-            # Try best-effort with 27-field map, truncating extra cells
             field_map = MASTER_FIELDS_27
 
         cand: dict[str, Any] = {
@@ -245,9 +265,11 @@ def _parse_matrix_rows(text: str) -> list[dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 def _parse_candidate_details(text: str) -> dict[str, dict[str, str]]:
-    """Parse Section 5 candidate detail blocks into enriched metadata."""
+    """Parse candidate detail blocks (## or ### level, with or without 'provisional')."""
     result: dict[str, dict[str, str]] = {}
-    blocks = re.split(r"\n### (DCBM-\d+)\s+provisional\s*\n", text)
+    # Match ## or ### DCBM-XXX with optional provisional/MR suffix
+    pattern = r"\n(?:###|##)\s+(DCBM-\d+(?:-MR)?)\s*(?:provisional)?\s*\n"
+    blocks = re.split(pattern, text)
     for i in range(1, len(blocks), 2):
         pid = blocks[i].strip()
         content = blocks[i + 1] if i + 1 < len(blocks) else ""
@@ -256,8 +278,11 @@ def _parse_candidate_details(text: str) -> dict[str, dict[str, str]]:
 
 
 def _parse_one_detail(text: str) -> dict[str, str]:
-    """Parse a single candidate's detail section."""
+    """Parse a single candidate's detail section. Handles both #### subsections
+    (old format) and bullet-list narrative (new format)."""
     data: dict[str, str] = {}
+
+    # Try structured #### subsections first (old format)
     basic = _extract_subsection(text, "基本信息")
     if basic:
         data["title_zh_detail"] = _extract_bullet(basic, "建议中文题名")
@@ -300,7 +325,83 @@ def _parse_one_detail(text: str) -> dict[str, str]:
     if rp_match:
         priority_raw = rp_match.group(1).strip().strip("*").strip()
         data["reading_priority_detail"] = priority_raw
+
+    # --- Fallback: bullet-list narrative format (new Daily Brief) ---
+    if not any(data.values()):
+        _parse_narrative_format(text, data)
+
     return data
+
+
+def _parse_narrative_format(text: str, data: dict[str, str]) -> None:
+    """Parse narrative bullet-point candidate format."""
+    # Extract bold title line (Chinese title)
+    m = re.search(r'\*\*(.+?)\*\*', text)
+    if m:
+        data["title_zh_detail"] = m.group(1).strip()
+
+    # Extract English title
+    m = re.search(r'(?:英文|English)[：:]\s*\*?(.+?)\*?\s*\n', text)
+    if m:
+        data["title_en_detail"] = m.group(1).strip()
+
+    # Extract DOI
+    m = re.search(r'DOI[：:]\s*`?(10\.\S+?)`?\s*\n', text)
+    if not m:
+        m = re.search(r'DOI[：:]\s*(10\.\S+)', text)
+    if m:
+        data["doi_detail"] = m.group(1).strip()
+
+    # Extract journal info: 《Journal》Year, Vol(Issue):Pages
+    m = re.search(r'《(.+?)》\s*(\d{4})[,，]\s*(\d+)\((\S+?)\)[：:]\s*(\S+)', text)
+    if m:
+        data["journal_detail"] = m.group(1).strip()
+        data["year_detail"] = m.group(2)
+        data["volume_detail"] = m.group(3)
+        data["issue_detail"] = m.group(4)
+        data["pages_detail"] = m.group(5)
+
+    # Authors: after journal line, before 优先级
+    m = re.search(r'(?:作者[：:]|Authors?[：:])\s*(.+?)(?:\n|$)', text, re.IGNORECASE)
+    if not m:
+        # Try: after English title, before journal
+        m = re.search(r'(?:[。；])\s*([A-Z][A-Za-z\s,;.]+?)(?:[\s。；]*《|[\s。；]*DOI|[\s。；]*\*\*优先)', text)
+    if m:
+        data["authors_detail"] = m.group(1).strip().rstrip(".")
+
+    # Bullet points
+    for label, key in [
+        ("研究区", "study_area_detail"),
+        ("对象", "research_object_detail"),
+        ("方法", "methods_detail"),
+        ("发现", "findings_detail"),
+        ("创新", "innovation_detail"),
+        ("局限", "limitations_detail"),
+        ("建议引用", "suggested_chapter_detail"),
+        ("相关性", "relevance_detail"),
+        ("去重", "dedup_note"),
+    ]:
+        pattern = rf'-\s*{label}[：:]\s*(.+?)(?:\n(?:-\s|$|\n))'
+        m = re.search(pattern, text)
+        if m:
+            data[key] = m.group(1).strip()
+
+    # Priority: **A+** or **A** or **B**
+    m = re.search(r'\*\*优先[级别]*[：:]?\s*([A-C][+-]?)\*\*', text)
+    if not m:
+        m = re.search(r'优先级[：:]\s*\*?\*?\*?([A-C][+-]?)\*?\*?\*?', text)
+    if m:
+        data["reading_priority_detail"] = m.group(1).strip()
+
+    # Suggested Chinese title
+    m = re.search(r'建议中文题名[：:]\s*\*?\*?(.+?)\*?\*?\s*\n', text)
+    if m:
+        data["title_zh_detail"] = m.group(1).strip()
+
+    # Official URL
+    m = re.search(r'(?:官方页|URL)[：:]\s*`?(https?://\S+?)`?\s*\n', text)
+    if m:
+        data["official_url_detail"] = m.group(1).strip()
 
 
 def _extract_subsection(text: str, heading: str) -> str | None:
@@ -343,12 +444,17 @@ def _merge_section5_data(
         if not detail:
             continue
         _fill_if_empty(cand, "title_zh", detail.get("title_zh_detail", ""))
+        _fill_if_empty(cand, "title_en", detail.get("title_en_detail", ""))
         _fill_if_empty(cand, "journal", detail.get("journal_detail", ""))
         _fill_if_empty(cand, "volume", detail.get("volume_detail", ""))
         _fill_if_empty(cand, "issue", detail.get("issue_detail", ""))
         _fill_if_empty(cand, "pages_or_article", detail.get("pages_detail", ""))
         _fill_if_empty(cand, "doi", detail.get("doi_detail", ""))
         _fill_if_empty(cand, "authors", detail.get("authors_detail", ""))
+        _fill_if_empty(cand, "year", detail.get("year_detail", ""))
+        _fill_if_empty(cand, "study_area", detail.get("study_area_detail", ""))
+        _fill_if_empty(cand, "research_object", detail.get("research_object_detail", ""))
+        _fill_if_empty(cand, "official_url", detail.get("official_url_detail", ""))
         _enrich_field(cand, "research_purpose", detail.get("research_purpose_detail", ""))
         _enrich_field(cand, "methods", detail.get("methods_detail", ""))
         _enrich_field(cand, "findings", detail.get("findings_detail", ""))
@@ -368,6 +474,57 @@ def _merge_section5_data(
             "suggested_chapter_prose": detail.get("suggested_chapter_detail", ""),
             "innovation_limitations": detail.get("innovation_limitations_detail", ""),
         }
+    return candidates
+
+
+def _candidates_from_details(details: dict[str, dict[str, str]]) -> list[dict[str, Any]]:
+    """Create candidate list directly from parsed detail data (when no matrix table)."""
+    candidates: list[dict[str, Any]] = []
+    for pid, detail in details.items():
+        is_mr = "-MR" in pid
+        cand: dict[str, Any] = {
+            "provisional_id": pid,
+            "recommendation": "manual_review_only" if is_mr else "入库",
+            "doi": detail.get("doi_detail", ""),
+            "title_en": detail.get("title_en_detail", ""),
+            "title_zh": detail.get("title_zh_detail", ""),
+            "first_author": detail.get("authors_detail", "").split(";")[0].strip() if detail.get("authors_detail") else "",
+            "authors": detail.get("authors_detail", ""),
+            "year": detail.get("year_detail", ""),
+            "journal": detail.get("journal_detail", ""),
+            "volume": detail.get("volume_detail", ""),
+            "issue": detail.get("issue_detail", ""),
+            "pages_or_article": detail.get("pages_detail", ""),
+            "official_url": detail.get("official_url_detail", ""),
+            "document_type": "",
+            "study_area": detail.get("study_area_detail", ""),
+            "research_object": detail.get("research_object_detail", ""),
+            "burial_depth": "",
+            "research_purpose": "",
+            "methods": detail.get("methods_detail", ""),
+            "findings": detail.get("findings_detail", ""),
+            "innovation": detail.get("innovation_detail", ""),
+            "limitations": detail.get("limitations_detail", ""),
+            "relevance": detail.get("relevance_detail", ""),
+            "suggested_chapter": detail.get("suggested_chapter_detail", ""),
+            "tags": "",
+            "reading_priority": detail.get("reading_priority_detail", ""),
+            "verification_status": detail.get("verification_status_detail", ""),
+            "ris": "",
+            "bibtex": "",
+            "_detail_prose": {
+                "research_purpose_prose": "",
+                "methods_prose": detail.get("methods_detail", ""),
+                "findings_prose": detail.get("findings_detail", ""),
+                "innovation_prose": detail.get("innovation_detail", ""),
+                "limitations_prose": detail.get("limitations_detail", ""),
+                "relevance_prose": detail.get("relevance_detail", ""),
+                "suggested_chapter_prose": detail.get("suggested_chapter_detail", ""),
+                "innovation_limitations": "",
+            },
+            "dedup_note": detail.get("dedup_note", ""),
+        }
+        candidates.append(cand)
     return candidates
 
 

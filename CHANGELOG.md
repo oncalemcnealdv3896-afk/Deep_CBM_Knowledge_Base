@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-07-23 Daily Brief Update
+
+- Read and processed Daily Brief: `09_Daily_Brief/2026-07-23/Deep_CBM_daily_brief_20260723.md`
+- Added 10 new records: DCBM-125 through DCBM-134
+- DCBM-125: XI Zhaodong — Gas breakthrough time control and production optimization (煤炭学报)
+- DCBM-126: QIU Peng — Junggar Basin deep CBM progress and prospect (煤炭学报)
+- DCBM-127: Tao Zhang — Wettability alteration for adsorbed methane release (Energy & Fuels)
+- DCBM-128: Xiangchun Chang — Adsorption thermodynamics and capacity prediction (Energy & Fuels)
+- DCBM-129: Pingli Liu — Ultrasalt-tolerant slickwater for flowback reuse (Langmuir)
+- DCBM-130: Yunhe Shi — Multifractal pore structure of Suide Block (ACS Omega)
+- DCBM-131: Hong Zhuo — Tracer monitoring and ML optimization for deep CBM (Processes)
+- DCBM-132: GUO Jianchun — Full-scale proppant-support fracturing (煤炭学报)
+- DCBM-133: Sihao Li — Deep CBM occurrence mechanisms review (Advances in Geo-Energy Research)
+- DCBM-134: Wei Yang — Nanoconfinement effects on methane density (Fuel, 2027 issue)
+- 3 manual-review candidates excluded: DCBM-135-MR, DCBM-136-MR, DCBM-137-MR (depth criteria)
+- 5 known duplicates correctly skipped by dedup
+- 0 duplicates found among new candidates
+- Updated brief_parser to handle new Daily Brief format (bullet-list narrative + compact table)
+- Master record count: 124 → 134
+- DOI missing count: 2 (1 pre-existing + DCBM-133 DOI pending)
+- Protected directories unmodified
+
 ## 2026-07-10 Daily Brief Update
 
 - Read and processed Daily Brief: `09_Daily_Brief/2026-07-10/Deep_CBM_daily_brief_20260710.md`

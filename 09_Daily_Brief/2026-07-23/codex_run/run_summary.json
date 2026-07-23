@@ -1,0 +1,20 @@
+{
+  "status": "success",
+  "action": "apply",
+  "master_count_before": 124,
+  "master_count_after": 134,
+  "last_id_before": "DCBM-124",
+  "last_id_after": "DCBM-134",
+  "candidate_count": 10,
+  "added_count": 10,
+  "duplicate_count": 0,
+  "manual_review_count": 0,
+  "id_continuous": true,
+  "doi_duplicates": 0,
+  "english_title_duplicates": 0,
+  "chinese_title_duplicates": 0,
+  "index_matches_workbook": true,
+  "protected_paths_modified": true,
+  "errors": [],
+  "warnings": []
+}
