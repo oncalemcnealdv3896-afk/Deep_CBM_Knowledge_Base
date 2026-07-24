@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-07-24 Daily Brief Update
+
+- Read and processed Daily Brief: `09_Daily_Brief/2026-07-24/Deep_CBM_daily_brief_20260724.md`
+- Added 2 new records: DCBM-135, DCBM-136
+- DCBM-135: Qiang Guo — Seismic rock-physics inversion for deep CBM reservoirs (Journal of Applied Geophysics)
+  - 鄂尔多斯盆地东缘本溪组，埋深1500-2300 m，空间变化孔隙纵横比+贝叶斯反演
+- DCBM-136: Q. Zhang — Geochemical evolution and microbial methanogenesis in North China CBM (Fuel, 2027 issue)
+  - 华北4个煤层气区69口井，气体/水/同位素/微生物/功能基因联合分析
+- 0 duplicates; 0 manual review
+- Master record count: 134 → 136
+- Protected directories unmodified
+
 ## 2026-07-23 Daily Brief Update
 
 - Read and processed Daily Brief: `09_Daily_Brief/2026-07-23/Deep_CBM_daily_brief_20260723.md`

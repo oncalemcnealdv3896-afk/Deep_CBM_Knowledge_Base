@@ -1,0 +1,16 @@
+{
+  "status": "pass",
+  "action": "apply",
+  "master_count_before": 134,
+  "last_id_before": "DCBM-134",
+  "candidate_count": 2,
+  "new_count": 2,
+  "duplicate_count": 0,
+  "manual_review_count": 0,
+  "proposed_final_ids": [
+    "DCBM-135",
+    "DCBM-136"
+  ],
+  "errors": [],
+  "warnings": []
+}

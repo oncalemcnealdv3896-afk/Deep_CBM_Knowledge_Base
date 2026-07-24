@@ -1,0 +1,10 @@
+09_Daily_Brief/2026-07-24/codex_run/apply_state.json
+09_Daily_Brief/2026-07-24/codex_run/brief_parse_report.json
+09_Daily_Brief/2026-07-24/codex_run/candidate_manifest.json
+09_Daily_Brief/2026-07-24/codex_run/duplicate_log.csv
+09_Daily_Brief/2026-07-24/codex_run/manual_review.csv
+09_Daily_Brief/2026-07-24/codex_run/preflight_summary.json
+09_Daily_Brief/2026-07-24/codex_run/protected_paths_before.json
+09_Daily_Brief/2026-07-24/codex_run/run_summary.json
+09_Daily_Brief/2026-07-24/codex_run/tmp_workbook.xlsx
+09_Daily_Brief/2026-07-24/codex_run/validation_report.json
