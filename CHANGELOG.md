@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-07-26 Daily Brief Update
+
+- Read and processed Daily Brief: `09_Daily_Brief/2026-07-26/Deep_CBM_daily_brief_20260726.md`
+- Added 3 new records: DCBM-137, DCBM-138, DCBM-139
+- DCBM-137: Tao Wang — Gas content prediction models evaluation (Results in Engineering)
+- DCBM-138: Chen Guo — Adsorption behavior and prediction under T-P coupling (Scientific Reports)
+- DCBM-139: Yusong Ji — Logging data-driven deep CBM content evaluation (Geological Journal)
+- 0 duplicates; all fields filled from RIS + prose
+- Master record count: 136 -> 139
+- Protected directories unmodified
+
 ## 2026-07-24 Daily Brief Update
 
 - Read and processed Daily Brief: `09_Daily_Brief/2026-07-24/Deep_CBM_daily_brief_20260724.md`

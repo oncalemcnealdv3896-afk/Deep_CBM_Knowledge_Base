@@ -1,0 +1,12 @@
+{
+  "master_count_before": 136,
+  "last_id_before": "DCBM-136",
+  "added_count": 3,
+  "proposed_final_ids": [
+    "DCBM-137",
+    "DCBM-138",
+    "DCBM-139"
+  ],
+  "temp_workbook": "09_Daily_Brief\\2026-07-26\\codex_run\\tmp_workbook.xlsx",
+  "snapshot": "00_Master\\snapshots\\Deep_CBM_Knowledge_Base_2026-07-26.xlsx"
+}
