@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-07-29 Daily Brief Update
+
+- Read and processed Daily Brief: `09_Daily_Brief/2026-07-29/Deep_CBM_daily_brief_20260729.md`
+- Added 5 new records: DCBM-140 through DCBM-144
+- DCBM-140: Fengmei Jiao — Oxygen groups effect on CH4 adsorption in deep coal rock (Scientific Reports)
+- DCBM-141: Zepeng Du — Mechanical and failure behaviors of deep coal rock (Int J Coal Sci Tech)
+- DCBM-142: Qingwei Wang — Pipe string damage and wellbore integrity in deep CBM wells (煤炭学报)
+- DCBM-143: Shuang Gong — Anisotropic fracture toughness evolution of deep coal rock (煤炭学报)
+- DCBM-144: Han Zhang — Revisit methane adsorption in unconventional reservoirs (煤炭学报)
+- 1 duplicate skipped: DCBM-055 (DOI 10.1038/s41598-026-47379-9)
+- Master record count: 139 -> 144
+- Protected directories unmodified
+
 ## 2026-07-26 Daily Brief Update
 
 - Read and processed Daily Brief: `09_Daily_Brief/2026-07-26/Deep_CBM_daily_brief_20260726.md`

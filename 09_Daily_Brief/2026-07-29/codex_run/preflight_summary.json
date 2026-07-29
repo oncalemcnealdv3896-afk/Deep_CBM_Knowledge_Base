@@ -1,0 +1,19 @@
+{
+  "status": "pass",
+  "action": "apply",
+  "master_count_before": 139,
+  "last_id_before": "DCBM-139",
+  "candidate_count": 6,
+  "new_count": 5,
+  "duplicate_count": 1,
+  "manual_review_count": 0,
+  "proposed_final_ids": [
+    "DCBM-140",
+    "DCBM-141",
+    "DCBM-142",
+    "DCBM-143",
+    "DCBM-144"
+  ],
+  "errors": [],
+  "warnings": []
+}
